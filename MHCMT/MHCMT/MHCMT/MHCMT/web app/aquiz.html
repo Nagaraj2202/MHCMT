@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Level Performance</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1, h2, h3 {
+      color: #bb86fc;
+      margin-top: 20px;
+    }
+
+    .graph-container {
+      background-color: #1c1c1c;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 700px;
+      margin-top: 60px;
+    }
+
+    canvas {
+      background-color: #2b2b2b;
+      border-radius: 10px;
+    }
+
+    .qa-container {
+      width: 100%;
+      max-width: 700px;
+      margin-top: 50px;
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .qa-entry {
+      margin-bottom: 25px;
+    }
+
+    .qa-entry h4 {
+      margin-bottom: 10px;
+      color: #4fc3f7;
+    }
+
+    .qa-entry li {
+      margin-bottom: 6px;
+      padding: 8px;
+      background: #2b2b2b;
+      border-radius: 6px;
+    }
+
+    .qa-entry li span {
+      font-weight: bold;
+      color: #bb86fc;
+    }
+
+    .back-button {
+      margin-top: 40px;
+    }
+
+    .back-button a {
+      background-color: #bb86fc;
+      color: #000;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-button a:hover {
+      background-color: #9b6ffc;
+    }
+
+    .toggle-btn {
+      margin-bottom: 15px;
+      background-color: #4fc3f7;
+      color: #000;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .question-list li, .quote-item {
+      margin-bottom: 8px;
+      padding: 8px;
+      background: #2b2b2b;
+      border-radius: 6px;
+    }
+
+    .quote-section {
+      max-width: 700px;
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 40px;
+    }
+
+    .quote-section input[type="text"] {
+      padding: 10px;
+      width: 60%;
+      border-radius: 6px;
+      border: none;
+      margin-right: 10px;
+    }
+
+    .quote-section button {
+      padding: 10px 15px;
+      background: #4fc3f7;
+      color: #222;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .quote-section ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .delete {
+      background: #ff5252;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .delete:hover {
+      background: #ff1744;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📊 Quiz Activity Over Time</h2>
+
+  <div class="graph-container">
+    <h3>📈 Daily Score Trend</h3>
+    <canvas id="tradeChart" width="400" height="200"></canvas>
+  </div>
+
+  <div class="back-button">
+    <a href="analytics.html">⬅ Back to Analytics</a>
+  </div>
+
+  <div class="qa-container" id="qaContainer">
+    <h3>📝 Daily Quiz Questions & Answers</h3>
+  </div>
+
+  <div class="qa-container">
+    <h3>📚 All Quiz Questions</h3>
+    <button onclick="toggleAllQuestions()" class="toggle-btn">Show/Hide Questions</button>
+    <ul id="allQuestionsList" class="question-list" style="display: none;"></ul>
+  </div>
+
+  <div class="quote-section">
+    <h3>🛠️ Manage Motivational Quotes</h3>
+    <input type="text" id="new-quote" placeholder="Enter new quote">
+    <button onclick="addQuote()">Add Quote</button>
+    <ul id="quote-list"></ul>
+  </div>
+
+  <script>
+    // ✅ Setup Username
+    let username = localStorage.getItem("username") || "Guest";
+    if (!localStorage.getItem("username")) {
+      const name = prompt("Enter your name:");
+      if (name) {
+        localStorage.setItem("username", name);
+        username = name;
+      }
+    }
+
+    // ✅ Default Questions Fallback
+    const defaultQuestions = [
+      "Did you sleep well last night?",
+      "Did you eat healthy food today?",
+      "Did you talk to someone you care about today?",
+      "Did you take a break from screens?",
+      "Did you express gratitude today?",
+      "Did you exercise today?",
+      "Did you feel happy today?",
+      "Did you avoid overthinking?",
+      "Did you take deep breaths or meditate?",
+      "Did you do something enjoyable today?"
+    ];
+    if (!localStorage.getItem("quizQuestions")) {
+      localStorage.setItem("quizQuestions", JSON.stringify(defaultQuestions));
+    }
+
+    // ✅ Load and sort history
+    let quizHistory = JSON.parse(localStorage.getItem("quizHistory")) || [];
+    const sortedData = quizHistory.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const labels = sortedData.map(entry => {
+      const d = new Date(entry.date);
+      return d.toLocaleDateString("en-IN", {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+    });
+    const scores = sortedData.map(entry => entry.score);
+
+    // ✅ Chart
+    const ctx = document.getElementById('tradeChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Daily Score',
+          data: scores,
+          borderColor: '#bb86fc',
+          backgroundColor: 'rgba(187, 134, 252, 0.2)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 5,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#bb86fc'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: "#fff" } }
+        },
+        scales: {
+          x: { ticks: { color: "#fff" }, grid: { color: "#333" } },
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#fff", stepSize: 1 },
+            grid: { color: "#333" }
+          }
+        }
+      }
+    });
+
+    // ✅ Show full Q&A history with original timestamp and remove option
+    const qaContainer = document.getElementById("qaContainer");
+    sortedData.forEach(entry => {
+      if (!entry.answers) return;
+
+      const div = document.createElement("div");
+      div.classList.add("qa-entry");
+
+      const formattedDate = new Date(entry.date).toLocaleString("en-IN", {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      const header = document.createElement("div");
+      header.style.display = "flex";
+      header.style.justifyContent = "space-between";
+      header.style.alignItems = "center";
+
+      const title = document.createElement("h4");
+      title.textContent = `👤 ${entry.username || username} | 📅 ${formattedDate} | ✅ Score: ${entry.score}/10`;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "Remove";
+      removeBtn.className = "delete";
+      removeBtn.onclick = () => {
+        if (confirm("Are you sure you want to remove this entry?")) {
+          quizHistory = quizHistory.filter(q => q.date !== entry.date);
+          localStorage.setItem("quizHistory", JSON.stringify(quizHistory));
+          location.reload();
+        }
+      };
+
+      header.appendChild(title);
+      header.appendChild(removeBtn);
+      div.appendChild(header);
+
+      const ul = document.createElement("ul");
+      entry.answers.forEach(a => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${a.answer}</span> — ${a.question}`;
+        ul.appendChild(li);
+      });
+
+      div.appendChild(ul);
+      qaContainer.appendChild(div);
+    });
+
+    // ✅ Toggle All Questions
+    function toggleAllQuestions() {
+      const list = document.getElementById("allQuestionsList");
+      list.style.display = list.style.display === "none" ? "block" : "none";
+      if (list.childElementCount === 0) {
+        const q = JSON.parse(localStorage.getItem("quizQuestions")) || [];
+        q.forEach((ques, i) => {
+          const li = document.createElement("li");
+          li.textContent = `${i + 1}. ${ques}`;
+          list.appendChild(li);
+        });
+      }
+    }
+
+    // ✅ Motivational Quotes
+    let quotes = JSON.parse(localStorage.getItem("motivationalQuotes")) || [];
+
+    function saveQuotesToLocalStorage() {
+      localStorage.setItem("motivationalQuotes", JSON.stringify(quotes));
+    }
+
+    function renderQuotes() {
+      const list = document.getElementById("quote-list");
+      list.innerHTML = "";
+      quotes.forEach((quote, index) => {
+        const li = document.createElement("li");
+        li.classList.add("quote-item");
+        li.textContent = quote;
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "delete";
+        delBtn.onclick = () => deleteQuote(index);
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function addQuote() {
+      const input = document.getElementById("new-quote");
+      const text = input.value.trim();
+      if (text) {
+        quotes.push(text);
+        saveQuotesToLocalStorage();
+        renderQuotes();
+        input.value = "";
+      }
+    }
+
+    function deleteQuote(index) {
+      quotes.splice(index, 1);
+      saveQuotesToLocalStorage();
+      renderQuotes();
+    }
+
+    renderQuotes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Manage Quotes</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 40px;
+      background: #121212;
+      color: white;
+    }
+
+    h1 {
+      color: #bb86fc;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 60%;
+      border-radius: 6px;
+      border: none;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background: #4fc3f7;
+      color: #222;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    ul {
+      margin-top: 20px;
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #1e1e1e;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 5px;
+    }
+
+    .delete {
+      background: #ff5252;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .delete:hover {
+      background: #ff1744;
+    }
+
+    .back-button {
+      margin-top: 30px;
+    }
+
+    .back-button a {
+      color: #4fc3f7;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-button a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠️ Manage Motivational Quotes</h1>
+  <input type="text" id="new-quote" placeholder="Enter new quote">
+  <button onclick="addQuote()">Add Quote</button>
+
+  <ul id="quote-list"></ul>
+
+  <div class="back-button">
+    <a href="analytics.html">⬅ Back to</a>
+  </div>
+
+  <script>
+    let quotes = JSON.parse(localStorage.getItem("motivationalQuotes")) || [];
+
+    function saveQuotesToLocalStorage() {
+      localStorage.setItem("motivationalQuotes", JSON.stringify(quotes));
+    }
+
+    function renderQuotes() {
+      const list = document.getElementById("quote-list");
+      list.innerHTML = "";
+      quotes.forEach((quote, index) => {
+        const li = document.createElement("li");
+        li.textContent = quote;
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "delete";
+        delBtn.onclick = () => {
+          deleteQuote(index);
+        };
+
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function addQuote() {
+      const input = document.getElementById("new-quote");
+      const text = input.value.trim();
+      if (text) {
+        quotes.push(text);
+        saveQuotesToLocalStorage();
+        renderQuotes();
+        input.value = "";
+      }
+    }
+
+    function deleteQuote(index) {
+      quotes.splice(index, 1);
+      saveQuotesToLocalStorage();
+      renderQuotes();
+    }
+
+    // Render on page load
+    renderQuotes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup Form</title>
+  <link href="https://fonts.googleapis.com/css?family=Poppins:600&display=swap" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/a81368914c.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <div class="container">
+    <div class="login-content">
+      <form action="">
+        <h1 class="title">AI CHATBOT</h1>
+        <h2 class="title">SIGN UP</h2>
+
+        <!-- Username -->
+        <div class="input-div one">
+          <div class="i"><i class="fas fa-user"></i></div>
+          <div class="div">
+            <h5>Username</h5>
+            <input type="text" class="input" required />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="input-div one">
+          <div class="i"><i class="fas fa-envelope"></i></div>
+          <div class="div">
+            <h5>Email</h5>
+            <input type="email" class="input" required />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="input-div pass">
+          <div class="i"><i class="fas fa-lock"></i></div>
+          <div class="div">
+            <h5>Password</h5>
+            <input type="password" class="input" required />
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="input-div pass">
+          <div class="i"><i class="fas fa-lock"></i></div>
+          <div class="div">
+            <h5>Confirm Password</h5>
+            <input type="password" class="input" required />
+          </div>
+        </div>
+
+        <input type="submit" class="btn" value="Sign Up" />
+
+        <!-- Google Sign Up -->
+        <div id="g_id_onload"
+             data-client_id="353569117659-f5mvauk2bo1tt498diljnlq6s6cmcc36.apps.googleusercontent.com"
+             data-context="signup"
+             data-ux_mode="popup"
+             data-callback="handleGoogleResponse"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="signup_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+
+        <!-- Login Redirect -->
+        <p class="signup-text">Already have an account? <a href="login.html">Login</a></p>
+      </form>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="assets/js/main.js"></script>
+  <script>
+    const inputs = document.querySelectorAll(".input");
+
+    function addFocusClass() {
+      let parent = this.parentNode.parentNode;
+      parent.classList.add("focus");
+    }
+
+    function removeFocusClass() {
+      let parent = this.parentNode.parentNode;
+      if (this.value === "") {
+        parent.classList.remove("focus");
+      }
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener("focus", addFocusClass);
+      input.addEventListener("blur", removeFocusClass);
+    });
+
+    // Handle Google Sign-up response
+    function handleGoogleResponse(response) {
+      const credential = response.credential;
+      console.log("Google ID token:", credential);
+      // Send this token to your backend for verification & signup
+      alert("Signed up with Google successfully!");
+    }
+  </script>
+</body>
+</html>

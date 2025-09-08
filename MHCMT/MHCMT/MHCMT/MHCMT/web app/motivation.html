@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MHCMT - Motivational Quotes</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+    }
+
+    .background {
+      background: url('img/moti.png') no-repeat center center fixed;
+      background-size: cover;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      filter: brightness(0.6) blur(3px);
+      animation: zoom 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes zoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 10px 30px;
+      display: flex;
+      align-items: center;
+      background-color: rgba(18, 18, 18, 0.7);
+      z-index: 1000;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo img {
+      height: 36px;
+    }
+
+    .logo span {
+      font-size: 20px;
+      font-weight: bold;
+      color: #bb86fc;
+    }
+
+    .quote-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      color: #fff;
+      animation: fadeIn 1s ease;
+    }
+
+    #quote {
+      font-size: 24px;
+      margin-bottom: 25px;
+      line-height: 1.6;
+      transition: opacity 0.5s ease;
+    }
+
+    #newQuoteBtn {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      background-color: #4fc3f7;
+      border: none;
+      border-radius: 8px;
+      color: #222;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #newQuoteBtn:hover {
+      background-color: #03a9f4;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    .back-home-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4fc3f7;
+      color: #222;
+      padding: 12px 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .back-home-btn:hover {
+      background-color: #03a9f4;
+      transform: scale(1.05);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background"></div>
+
+  <header>
+    <div class="logo">
+      <img src="img/logo.png" alt="MHCMT Logo">
+      <span>MHCMT</span>
+    </div>
+  </header>
+
+  <div class="quote-box">
+    <div id="quote">Loading motivational quote...</div>
+    <button id="newQuoteBtn">New Quote</button>
+  </div>
+
+  <a href="index.html" class="back-home-btn">← Back to Home</a>
+
+  <script>
+    const quoteEl = document.getElementById("quote");
+    const button = document.getElementById("newQuoteBtn");
+
+    const defaultQuotes = [
+      "Believe in yourself and all that you are.",
+      "Every day is a second chance.",
+      "Push yourself, because no one else is going to do it for you.",
+      "Your limitation—it’s only your imagination.",
+      "Success doesn’t just find you. You have to go out and get it.",
+      "The harder you work for something, the greater you’ll feel when you achieve it.",
+      "Don’t wait for opportunity. Create it.",
+      "Sometimes we’re tested not to show our weaknesses, but to discover our strengths.",
+      "Great things never come from comfort zones.",
+      "Discipline is the bridge between goals and accomplishment."
+    ];
+
+    function getQuotes() {
+      const stored = localStorage.getItem("motivationalQuotes");
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {
+          return defaultQuotes;
+        }
+      }
+      return defaultQuotes;
+    }
+
+    let quotes = getQuotes();
+
+    function showRandomQuote() {
+      const random = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteEl.style.opacity = 0;
+      setTimeout(() => {
+        quoteEl.textContent = random;
+        quoteEl.style.opacity = 1;
+      }, 300);
+    }
+
+    button.addEventListener("click", showRandomQuote);
+
+    // Show one immediately on load
+    showRandomQuote();
+  </script>
+</body>
+</html>

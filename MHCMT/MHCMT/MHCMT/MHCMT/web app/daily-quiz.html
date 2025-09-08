@@ -1,0 +1,8 @@
+const questions = [...]; // 10 questions
+const answers = []; // [{question, answer}, ...]
+
+answers.push({ question: questions[current], answer: isYes ? "Yes" : "No" });
+
+// On submit:
+quizHistory.push({ date: today, score: score, answers: answers });
+localStorage.setItem("quizHistory", JSON.stringify(quizHistory));

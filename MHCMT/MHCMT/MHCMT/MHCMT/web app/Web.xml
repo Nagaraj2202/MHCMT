@@ -1,0 +1,9 @@
+<servlet>
+  <servlet-name>ChatBotServlet</servlet-name>
+  <servlet-class>com.mhcmt.servlets.ChatBotServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>ChatBotServlet</servlet-name>
+  <url-pattern>/ChatBotServlet</url-pattern>
+</servlet-mapping>

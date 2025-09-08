@@ -1,0 +1,73 @@
+🚀 Mental Health Chatbot with Mood Tracking (MHCMT) 💬🧠
+
+Developed by: Nagaraj A
+
+The Mental Health Chatbot with Mood Tracking (MHCMT) is a full-stack web application designed to offer emotional support, daily mood tracking, and mental health guidance to users in an interactive and user-friendly way. Users can register, log in, chat with the bot, record their mood, take daily mental health quizzes, and receive motivational quotes. The admin can monitor chat logs, manage predefined responses, view mood analytics, and support users more effectively. This project aims to provide a seamless, intelligent, and accessible platform for mental health support, combining real-time interaction with useful insights.
+
+👨‍💻 About the Developer
+
+Hi, I’m Nagaraj A, an aspiring MCA student and Java & web developer passionate about creating impactful applications. The MHCMT project is my effort to build a real-world application focused on mental health, providing both users and administrators with a reliable system to track moods, engage in supportive chats, and analyze mental well-being trends.
+
+🧩 Key Features of MHCMT
+
+🧾 User Registration & Login System
+
+💬 Interactive AI-based Mental Health Chatbot with Predefined Supportive Responses
+
+📊 Mood Tracking System with Daily Mood Input
+
+📝 Daily Quizzes to Assess User Mental Well-being
+
+🌟 Display Motivational Quotes and Tips
+
+📊 Analytics Dashboard to show:
+  • Mood Trends (Daily, Weekly)
+  • Quiz Scores
+  • Chat Frequency
+
+🔧 Admin Dashboard to Manage:
+  • Predefined Bot Replies
+  • View User Chat Logs
+  • Manage User Mood Records
+  • Track Active Users and Engagement
+
+📱 Fully Responsive Frontend UI for Mobile & Desktop
+
+💬 Contact / Support Section for Assistance
+
+🛠️ Tech Stack Used
+
+Layer	Technology
+Frontend	HTML, CSS, JavaScript
+Backend	Java (Servlets/JSP)
+Database	MySQL (XAMPP)
+Tools	VS Code / IntelliJ
+
+🗂️ Project Structure
+
+✅ User Registration & Login Module
+
+✅ Chat Interface Module with Supportive AI-based Responses
+
+✅ Mood Input System for Daily Mood Logging
+
+✅ Daily Mental Health Quiz Module
+
+✅ Motivational Quotes Display Module
+
+✅ Admin Panel for Managing:
+  • User Chat Logs
+  • Mood Records
+  • Quiz Data
+  • Bot Responses
+
+✅ Mood and Quiz Analytics Dashboard (Graphs and Tables)
+
+✅ Fully Responsive User Interface
+
+🌱 Purpose of MHCMT
+This project is designed to help people:
+✔️ Express their emotions safely
+✔️ Track daily mood changes
+✔️ Receive motivational support
+✔️ Gain insights into their mental well-being over time

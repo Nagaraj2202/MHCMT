@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MHCMT - Chatbot Analytics Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      display: flex;
+      background: url('img/anbg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      color: #333;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(180deg, #3a3f98, #4e56c0);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      align-items: center;
+    }
+
+    .sidebar img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+    }
+
+    .sidebar h3 {
+      margin-bottom: 25px;
+      font-size: 22px;
+    }
+
+    .nav-links {
+      width: 100%;
+    }
+
+    .nav-links a {
+      display: block;
+      width: 100%;
+      padding: 10px 15px;
+      margin: 8px 0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: white;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      margin: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .dashboard-header h2 {
+      font-size: 26px;
+      color: #2d2d2d;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .card h4 {
+      font-size: 16px;
+      color: #444;
+      margin-bottom: 12px;
+    }
+
+    .card .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #3a3f98;
+      min-height: 28px;
+    }
+
+    .small-text {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .chart-container {
+      margin-top: 40px;
+      padding: 30px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      max-width: 100%;
+    }
+
+    .admin-info {
+      text-align: right;
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #4e56c0;
+    }
+
+    canvas {
+      background: transparent;
+      padding: 0;
+      width: 100% !important;
+      height: 350px !important;
+    }
+
+    .reset-btn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .reset-btn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="img/logo.png" alt="MHCMT Logo" />
+    <h3>MHCMT</h3>
+    <div class="nav-links">
+      <a href="analytics.html">📊 Dashboard</a>
+      <a href="achatbot.html">🤖 Chatbot</a>
+      <a href="aquiz.html">📝 Quiz</a>
+      <a href="amotivation.html">💬 Motivation</a>
+      <a href="index.html">👤 User</a>
+      <a href="analytics-login.html">🚪 Logout</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="dashboard-header">
+      <h2>Chatbot Analytics Dashboard</h2>
+      <div class="admin-info">Admin: <span id="adminName">Nag/Mit</span></div>
+    </div>
+
+    <!-- Minimal Tracking Card -->
+    <div class="cards">
+      <div class="card">
+        <h4>📊 Analytics</h4>
+        <div class="value">Tracking Active</div>
+        <div class="small-text">Live insights enabled</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container">
+      <h3 style="margin-bottom: 20px; color: #3a3f98; font-size: 22px;">📈 Chat, Quiz & Login Trends</h3>
+      <canvas id="trendChart"></canvas>
+    </div>
+
+    <button class="reset-btn" onclick="resetAnalytics()">🧹 Reset Analytics</button>
+  </div>
+
+  <script>
+    const adminName = localStorage.getItem("adminName") || "Nag/Mit";
+    document.getElementById("adminName").textContent = adminName;
+
+    const loginCount = parseInt(localStorage.getItem("dailyLoginCount")) || 0;
+    const userChatMessages = parseInt(localStorage.getItem("totalUserChatMessages")) || 0;
+    const botReplies = parseInt(localStorage.getItem("totalBotReplies")) || 0;
+    const totalChatMessages = userChatMessages + botReplies;
+    const quizAttempts = parseInt(localStorage.getItem("totalQuizAttempts")) || 0;
+
+    // ✅ Set static last date to "2025-08-04"
+    const todayStr = "2025-08-04";
+
+    const trendLabels = [
+      "2025-07-25", "2025-07-26", "2025-07-27", "2025-07-28", "2025-07-29",
+      "2025-07-30", "2025-07-31", "2025-08-01", "2025-08-02", todayStr
+    ];
+
+    const trendData = {
+      labels: trendLabels,
+      datasets: [
+        {
+          label: "Chat Messages",
+          data: [48, 57, 90, 92, 62, 57, 49, 77, 34, totalChatMessages],
+          borderColor: "#4fc3f7",
+          backgroundColor: "rgba(79,195,247,0.2)",
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: "Quiz Attempts",
+          data: [40, 24, 34, 25, 12, 23, 32, 27, 19, quizAttempts],
+          borderColor: "#ffb74d",
+          backgroundColor: "rgba(255,183,77,0.2)",
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: "Logins",
+          data: [20, 17, 8, 12, 7, 14, 16, 6, 6, loginCount],
+          borderColor: "#81c784",
+          backgroundColor: "rgba(129,199,132,0.2)",
+          fill: true,
+          tension: 0.4
+        }
+      ]
+    };
+
+    new Chart(document.getElementById("trendChart"), {
+      type: "line",
+      data: trendData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: { color: "#333" },
+            position: "top"
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#333" },
+            grid: { color: "#eee" }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#333" },
+            grid: { color: "#eee" }
+          }
+        }
+      }
+    });
+
+    function resetAnalytics() {
+      localStorage.removeItem("totalChatMessages");
+      localStorage.removeItem("totalUserChatMessages");
+      localStorage.removeItem("totalBotReplies");
+      localStorage.removeItem("dailyLoginCount");
+      localStorage.removeItem("totalQuizAttempts");
+      localStorage.removeItem("chatHistory");
+      localStorage.removeItem("quizHistory");
+      alert("Analytics reset successfully.");
+      location.reload();
+    }
+  </script>
+</body>
+</html>

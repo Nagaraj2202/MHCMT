@@ -1,0 +1,23 @@
+public class TestLogger {
+    public static void main(String[] args) {
+        String userId = "user001";
+        String message = "Feeling stressed.";
+        String type = "user";
+
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/mhcmt", "root", "password")) {
+
+            PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO chat_logs (user_id, type, message, timestamp) VALUES (?, ?, ?, NOW())"
+            );
+            stmt.setString(1, userId);
+            stmt.setString(2, type);
+            stmt.setString(3, message);
+            stmt.executeUpdate();
+
+            System.out.println("Message inserted successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

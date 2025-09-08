@@ -1,0 +1,55 @@
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.sql.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public class MotivationalQuoteServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String action = request.getParameter("action");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/mental_health_db", "root", "");
+
+            response.setContentType("application/json");
+
+            if ("add".equals(action)) {
+                String quote = request.getParameter("quote");
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO motivational_quotes (quote) VALUES (?)");
+                ps.setString(1, quote);
+                ps.executeUpdate();
+                response.getWriter().write("{\"status\":\"added\"}");
+
+            } else if ("delete".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM motivational_quotes WHERE id = ?");
+                ps.setInt(1, id);
+                ps.executeUpdate();
+                response.getWriter().write("{\"status\":\"deleted\"}");
+
+            } else if ("list".equals(action)) {
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM motivational_quotes");
+                JSONArray jsonArr = new JSONArray();
+
+                while (rs.next()) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("id", rs.getInt("id"));
+                    obj.put("quote", rs.getString("quote"));
+                    jsonArr.put(obj);
+                }
+
+                response.getWriter().write(jsonArr.toString());
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            response.getWriter().write("{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+}

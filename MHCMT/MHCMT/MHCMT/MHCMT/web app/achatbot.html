@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat Analytics - MHCMT</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #121212;
+      color: #ffffff;
+    }
+    h1 {
+      color: #bb86fc;
+      text-align: center;
+    }
+    h3 {
+      text-align: center;
+      color: #4fc3f7;
+    }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .card {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      width: 200px;
+      text-align: center;
+      margin: 10px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+    canvas {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 20px;
+      margin: 40px auto;
+      display: block;
+      max-width: 800px;
+      width: 100%;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #4fc3f7;
+      text-decoration: none;
+    }
+
+    .user-box {
+      background: #1e1e1e;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.05);
+    }
+    .user-box h4 {
+      color: #4fc3f7;
+      margin-bottom: 10px;
+    }
+    .msg-count {
+      font-size: 14px;
+      color: #bbb;
+      margin-bottom: 10px;
+    }
+    .msg-entry {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+    }
+    .msg-entry:last-child {
+      border-bottom: none;
+    }
+    .msg-entry span {
+      display: block;
+      font-size: 13px;
+      color: #999;
+    }
+    .msg-entry p {
+      margin: 5px 0 0;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 MHCMT Chat Analytics</h1>
+  <h3>User: <span id="userName">Loading...</span></h3>
+
+  <div class="stats">
+    <div class="card">
+      <h2 id="totalMessages">0</h2>
+      <p>Total Messages</p>
+    </div>
+    <div class="card">
+      <h2 id="userMessages">0</h2>
+      <p>User Messages</p>
+    </div>
+    <div class="card">
+      <h2 id="botMessages">0</h2>
+      <p>Bot Replies</p>
+    </div>
+  </div>
+
+  <canvas id="messageChart" height="120"></canvas>
+
+  <div id="userChatLogs"></div>
+
+  <a href="analytics.html">⬅ Back to Dashboard</a>
+
+  <script>
+    const username = localStorage.getItem("username") || "Guest";
+    document.getElementById("userName").innerText = username;
+
+    const history = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+    let userCount = 0, botCount = 0;
+    const userGrouped = {};
+
+    history.forEach(entry => {
+      // ✅ Only track messages of the current user
+      if (entry.username === username) {
+        if (!userGrouped[entry.username]) userGrouped[entry.username] = [];
+        userGrouped[entry.username].push(entry);
+
+        if (entry.role === 'user') userCount++;
+        if (entry.role === 'model') botCount++;
+      }
+    });
+
+    // ✅ Update counts
+    document.getElementById('totalMessages').innerText = userCount + botCount;
+    document.getElementById('userMessages').innerText = userCount;
+    document.getElementById('botMessages').innerText = botCount;
+
+    // ✅ Render chart
+    const ctx = document.getElementById('messageChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['User Messages', 'Bot Replies'],
+        datasets: [{
+          label: 'Message Count',
+          data: [userCount, botCount],
+          backgroundColor: ['#4fc3f7', '#bb86fc']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#ffffff" },
+            grid: { color: "#444" }
+          },
+          x: {
+            ticks: { color: "#ffffff" },
+            grid: { color: "#444" }
+          }
+        }
+      }
+    });
+
+    // ✅ Render message logs
+    const userLogContainer = document.getElementById("userChatLogs");
+
+    Object.entries(userGrouped).forEach(([user, entries]) => {
+      let userMsgs = 0;
+      let botMsgs = 0;
+
+      const box = document.createElement("div");
+      box.className = "user-box";
+
+      const heading = document.createElement("h4");
+      heading.textContent = `👤 User: ${user}`;
+      box.appendChild(heading);
+
+      entries.forEach(msg => {
+        if (msg.role === "user") userMsgs++;
+        if (msg.role === "model") botMsgs++;
+
+        const time = new Date(msg.timestamp || Date.now()).toLocaleString("en-IN", {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit', hour12: true
+        });
+
+        const entry = document.createElement("div");
+        entry.className = "msg-entry";
+        entry.innerHTML = `
+          <span>🕒 ${time} | ${msg.role.toUpperCase()}</span>
+          <p>${msg.message}</p>
+        `;
+        box.appendChild(entry);
+      });
+
+      const countSummary = document.createElement("div");
+      countSummary.className = "msg-count";
+      countSummary.innerHTML = `Total User Msgs: <b>${userMsgs}</b> | Bot Replies: <b>${botMsgs}</b>`;
+      box.insertBefore(countSummary, box.children[1]);
+
+      userLogContainer.appendChild(box);
+    });
+  </script>
+</body>
+</html>

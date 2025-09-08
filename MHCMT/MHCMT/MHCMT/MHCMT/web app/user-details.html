@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Quiz Result</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    .result-box {
+      background: rgba(255,255,255,0.1);
+      padding: 40px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body>
+  <div class="result-box">
+    <h2>Quiz Result for <span id="userId"></span></h2>
+    <p id="scoreText">Loading score...</p>
+    <p id="feedbackText"></p>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get("user_id");
+    document.getElementById("userId").textContent = userId;
+
+    async function fetchUserScore() {
+      try {
+        const res = await fetch(`GetSingleUserScoreServlet?user_id=${userId}`);
+        const data = await res.json();
+
+        const score = data.score;
+        document.getElementById("scoreText").textContent = `Score: ${score}/10`;
+
+        let feedback = "";
+        if (score >= 7) {
+          feedback = "Great job! Keep up your healthy habits.";
+        } else if (score >= 4) {
+          feedback = "You're doing okay. Keep improving!";
+        } else {
+          feedback = "Take time to focus on your well-being.";
+        }
+        document.getElementById("feedbackText").textContent = feedback;
+
+      } catch (err) {
+        document.getElementById("scoreText").textContent = "Error loading score.";
+      }
+    }
+
+    fetchUserScore();
+  </script>
+</body>
+</html>

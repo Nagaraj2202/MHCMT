@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MHCMT Chatbot</title>
+  <style>
+    * { box-sizing: border-box; }
+    body, html {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #000000, #651111);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .chatbot-container {
+      max-width: 400px;
+      height: 600px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      margin: 40px auto;
+      box-shadow: 0 0 20px #dbd6dd61;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .chatbot-header {
+      background-color: #000000;
+      color: white;
+      padding: 16px;
+      font-weight: bold;
+      font-size: 20px;
+      position: relative;
+    }
+    .chatbot-header span#welcome {
+      display: block;
+      font-size: 14px;
+      font-weight: normal;
+      margin-top: 4px;
+    }
+    .chatbot-header .analytics-link {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 14px;
+      color: #4fc3f7;
+      text-decoration: none;
+    }
+    .chatbot-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .message {
+      max-width: 75%;
+      padding: 12px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .message.user {
+      background-color: rgba(228, 224, 237, 0.259);
+      color: rgb(243, 243, 243);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .message.bot {
+      background-color: rgba(228, 224, 237, 0.259);
+      color: rgb(255, 250, 250);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      height: 24px;
+      gap: 6px;
+      padding: 10px;
+    }
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      display: inline-block;
+      animation: wave 1.2s infinite ease-in-out;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes wave {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+    .chatbot-input {
+      display: flex;
+      padding: 10px;
+      background-color: #1e1e1e;
+    }
+    .chatbot-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 24px;
+      font-size: 14px;
+      outline: none;
+    }
+    .chatbot-input button {
+      background-color: #ffffff;
+      color: rgb(0, 0, 0);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 100px;
+      margin-left: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: #ffffff;
+      color: #000;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+      z-index: 1000;
+    }
+    .back-btn:hover {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbot-container">
+    <div class="chatbot-header">
+      MHCMT
+      <span id="welcome"></span>
+      <a href="chat-analytics.html" class="analytics-link">📊</a>
+    </div>
+    <div class="chatbot-messages" id="chatMessages"></div>
+    <div class="chatbot-input">
+      <input type="text" id="userInput" placeholder="Type your message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <button class="back-btn" onclick="goBack()">Back</button>
+
+  <script>
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const username = localStorage.getItem("username") || "Guest";
+    document.getElementById("welcome").innerText = `Welcome, ${username}`;
+
+    let conversationHistory = [
+      {
+        role: 'user',
+        parts: [
+          {
+            text: "You are a compassionate, professional mental health therapist chatbot named MHCMT. Respond empathetically, provide supportive guidance, avoid judgment, and also give solutions. Once greeting is fine. Keep responses brief and supportive."
+          }
+        ]
+      }
+    ];
+
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addMessage(message, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender);
+      msgDiv.innerText = message;
+      chatMessages.appendChild(msgDiv);
+      scrollToBottom();
+
+      const chatLog = JSON.parse(localStorage.getItem("chatHistory")) || [];
+      chatLog.push({
+        username: username,
+        role: sender === 'user' ? 'user' : 'model',
+        message: message,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem("chatHistory", JSON.stringify(chatLog));
+    }
+
+    function addTypingIndicator() {
+      const typing = document.createElement('div');
+      typing.classList.add('message', 'bot');
+      typing.id = 'typing';
+      const indicator = document.createElement('div');
+      indicator.classList.add('typing-indicator');
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('span');
+        indicator.appendChild(dot);
+      }
+      typing.appendChild(indicator);
+      chatMessages.appendChild(typing);
+      scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+      const typing = document.getElementById('typing');
+      if (typing) typing.remove();
+    }
+
+    async function getBotReply(userMessage) {
+      const apiKey = 'AIzaSyCUVs3ZaCL-GLrHzq81biSmH490cIN1hME';
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+      conversationHistory.push({
+        role: 'user',
+        parts: [{ text: userMessage }]
+      });
+
+      const requestBody = { contents: conversationHistory };
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        return text || "I'm here to support you. Feel free to share what's on your mind.";
+      } catch (error) {
+        console.error('API error:', error);
+        return "Sorry, I'm having trouble connecting right now.";
+      }
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      addMessage(message, 'user');
+      userInput.value = '';
+
+      addTypingIndicator();
+      const reply = await getBotReply(message);
+      removeTypingIndicator();
+
+      addMessage(reply, 'bot');
+      conversationHistory.push({
+        role: 'model',
+        parts: [{ text: reply }]
+      });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    let greeted = false;
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!greeted) {
+        const greeting = "Hi, I'm here for you. How are you feeling today?";
+        showTypingEffect(greeting);
+        greeted = true;
+
+        const chatLog = JSON.parse(localStorage.getItem("chatHistory")) || [];
+        chatLog.push({
+          username: username,
+          role: "model",
+          message: greeting,
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem("chatHistory", JSON.stringify(chatLog));
+
+        conversationHistory.push({
+          role: 'model',
+          parts: [{ text: greeting }]
+        });
+      }
+    });
+
+    function showTypingEffect(text) {
+      const botMsg = document.createElement('div');
+      botMsg.classList.add('message', 'bot');
+      botMsg.style.whiteSpace = 'pre-wrap';
+      chatMessages.appendChild(botMsg);
+      scrollToBottom();
+
+      let index = 0;
+      const interval = setInterval(() => {
+        botMsg.textContent += text[index];
+        index++;
+        scrollToBottom();
+        if (index === text.length) clearInterval(interval);
+      }, 40);
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</body>
+</html>

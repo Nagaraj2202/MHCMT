@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MHCMT - Daily Well-being Quiz</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: url('img/quiz.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    .quiz-box {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #2196f3;
+      color: white;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .profile {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #bb86fc;
+    }
+
+    .back-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 30px;
+      padding: 10px 20px;
+      background-color: #ffffff;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 👤 User Profile Display -->
+  <div class="profile" id="userProfile">User: Guest</div>
+
+  <!-- 📋 Quiz Container -->
+  <div class="quiz-box">
+    <div id="question" class="question"></div>
+    <button id="yesBtn" onclick="answer(true)">YES</button>
+    <button id="noBtn" onclick="answer(false)">NO</button>
+    <div id="result" class="result"></div>
+  </div>
+
+  <!-- 🔙 Back Button -->
+  <button class="back-btn" onclick="goBack()">← Back</button>
+
+  <script>
+    let username = localStorage.getItem("username");
+    if (!username) {
+      const input = prompt("Enter your name:");
+      username = input ? input : "Guest";
+      localStorage.setItem("username", username);
+    }
+    document.getElementById("userProfile").textContent = `User: ${username}`;
+
+    const fallbackQuestions = [
+      "Did you sleep well last night?",
+      "Did you eat healthy food today?",
+      "Did you talk to someone you care about today?",
+      "Did you take a break from screens?",
+      "Did you express gratitude today?",
+      "Did you exercise today?",
+      "Did you feel happy today?",
+      "Did you avoid overthinking?",
+      "Did you take deep breaths or meditate?",
+      "Did you do something enjoyable today?"
+    ];
+
+    const questions = JSON.parse(localStorage.getItem("quizQuestions")) || fallbackQuestions;
+
+    let current = 0;
+    let score = 0;
+    let submitted = false;
+    const answers = [];
+
+    const questionEl = document.getElementById("question");
+    const resultEl = document.getElementById("result");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+
+    function loadQuestion() {
+      if (current < questions.length) {
+        questionEl.textContent = questions[current];
+      } else {
+        questionEl.textContent = "✅ Quiz Completed!";
+        yesBtn.style.display = "none";
+        noBtn.style.display = "none";
+
+        const feedback =
+          score >= 7 ? "Great job! Keep up your healthy habits." :
+          score >= 4 ? "You're doing okay. Keep improving!" :
+          "Take time to focus on your well-being.";
+
+        resultEl.textContent = `You scored ${score} out of ${questions.length}. ${feedback}`;
+
+        if (!submitted) {
+          submitted = true;
+          const today = new Date().toISOString().split('T')[0];
+
+          const quizData = {
+            date: today,
+            score,
+            answers,
+            username
+          };
+
+          let history = JSON.parse(localStorage.getItem("quizHistory")) || [];
+          history.push(quizData);
+          localStorage.setItem("quizHistory", JSON.stringify(history));
+        }
+      }
+    }
+
+    function answer(isYes) {
+      if (current >= questions.length) return;
+      answers.push({
+        question: questions[current],
+        answer: isYes ? "Yes" : "No"
+      });
+      if (isYes) score++;
+      current++;
+      loadQuestion();
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+/* Reset and global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(-45deg, #2f2f2f, #4d4d4d, #2f2f2f, #616161);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: #f1f1f1;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+a {
+    text-decoration: none;
+    color: #ffffff;
+    transition: color 0.4s ease;
+}
+
+a:hover {
+    color: #4fc3f7;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2a2a2a;
+    padding: 20px 40px;
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+    color: #4fc3f7;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px #4fc3f7;
+    cursor: default;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+nav ul li {
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+nav ul li:hover {
+    transform: scale(1.15);
+}
+
+nav ul li::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 3px;
+    background-color: #4fc3f7;
+    bottom: -6px;
+    left: 0;
+    transition: width 0.3s ease;
+}
+
+nav ul li:hover::after {
+    width: 100%;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(to bottom, #4d4d4d, #2f2f2f);
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    animation: fadeIn 1.2s ease-in;
+    flex-wrap: wrap;
+}
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    text-align: center;
+    max-width: 700px;
+    padding: 20px;
+    background: rgba(79, 195, 247, 0.1);
+    border-radius: 25px;
+    box-shadow: 0 0 15px rgba(79, 195, 247, 0.4);
+    animation: slideIn 1.5s ease-out;
+}
+
+.calendar-box {
+    background-color: #616161;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px #4fc3f7aa;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+
+#calendar {
+    margin-top: 12px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    background-color: #424242;
+    color: #eee;
+    transition: background-color 0.3s ease;
+}
+
+#calendar:hover,
+#calendar:focus {
+    background-color: #4fc3f7;
+    color: #121212;
+    outline: none;
+}
+
+/* Intro Box */
+.intro-box h1 {
+    font-size: 44px;
+    margin-bottom: 15px;
+    color: #4fc3f7;
+    text-shadow: 0 0 10px #4fc3f7;
+    animation: titleZoomFade 2s ease forwards;
+}
+
+.intro-box p {
+    color: #ddd;
+    font-size: 20px;
+    margin-bottom: 30px;
+    letter-spacing: 0.8px;
+}
+
+.intro-box button {
+    padding: 14px 36px;
+    background-color: #4fc3f7;
+    border: none;
+    border-radius: 30px;
+    color: #121212;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 0 10px #4fc3f7;
+    transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.intro-box button:hover {
+    background-color: #38a1db;
+    box-shadow: 0 0 20px #38a1db;
+}
+
+/* Quotes Section */
+.quotes-section {
+    padding: 60px 20px;
+    animation: fadeInUp 1s ease;
+    max-width: 800px;
+    margin: auto;
+}
+
+.quotes-section h2 {
+    color: #4fc3f7 !important;
+    text-shadow: none !important;
+    animation: none !important;
+}
+
+.quotes-section blockquote {
+    font-size: 24px;
+    color: #ddd;
+    font-style: italic;
+    margin-top: 20px;
+    border-left: 6px solid #4fc3f7;
+    padding-left: 20px;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 5px #4fc3f7aa;
+}
+
+/* Analytics Section */
+.analytics-section {
+    padding: 60px 20px;
+    text-align: center;
+    max-width: 800px;
+    margin: auto;
+    animation: fadeInUp 1.3s ease;
+}
+
+.analytics-section h2 {
+    color: #4fc3f7 !important;
+    text-shadow: none !important;
+    animation: none !important;
+}
+
+.analytics-section p {
+    color: #bbb;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+/* Footer */
+footer {
+    background-color: #2a2a2a;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 14px;
+    color: #888;
+    letter-spacing: 1px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    0% { opacity: 0; transform: translateX(-100px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 12px #4fc3f7aa;
+    }
+    50% {
+        box-shadow: 0 0 20px #4fc3f7dd;
+    }
+}
+
+@keyframes titleZoomFade {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+        color: #aaa;
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        color: #4fc3f7;
+        text-shadow: 0 0 10px #4fc3f7;
+    }
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ✅ Login Button */
+.login-btn {
+    background-color: #444c66;
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 25px;
+    font-weight: 600;
+    margin-left: 20px;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-btn:hover {
+    background-color: #666b83;
+    box-shadow: 0 0 12px #999;
+}
